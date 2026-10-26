@@ -121,7 +121,16 @@ function startXray() {
   console.log('[boot] xray spawned, pid ' + xrayProc.pid);
 }
 
+function publicHost(host) {
+  // Velixir's edge reaches the app under an internal host like
+  // <app>-eu.velixir.run, but that host only serves an edge placeholder
+  // page (WS upgrade answers 200, not 101). The real public host is
+  // <app>.velixir.run — strip the -<region> infix for generated links.
+  return host.replace(/-[a-z]{2}\.velixir\.run$/, '.velixir.run');
+}
+
 function vlessLink(host) {
+  host = publicHost(host);
   const encPath = encodeURIComponent(WS_PATH);
   return `vless://${UUID}@${host}:443?encryption=none&security=tls&type=ws&host=${host}&path=${encPath}#${encodeURIComponent(NODE_NAME)}`;
 }
